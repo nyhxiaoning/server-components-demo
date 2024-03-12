@@ -1,77 +1,15 @@
 # React Server Components Demo
 
-* [What is this?](#what-is-this)
-* [When will I be able to use this?](#when-will-i-be-able-to-use-this)
-* [Should I use this demo for benchmarks?](#should-i-use-this-demo-for-benchmarks)
-* [Setup](#setup)
-* [DB Setup](#db-setup)
-  + [Step 1. Create the Database](#step-1-create-the-database)
-  + [Step 2. Connect to the Database](#step-2-connect-to-the-database)
-  + [Step 3. Run the seed script](#step-3-run-the-seed-script)
-* [Notes about this app](#notes-about-this-app)
-  + [Interesting things to try](#interesting-things-to-try)
-* [Built by (A-Z)](#built-by-a-z)
-* [Code of Conduct](#code-of-conduct)
-* [License](#license)
+## 初始化连接系统pq
+- 配置连接地址：
+credentials.js文件
 
-## What is this?
+## DB Setup连接使用：postgres用户连接
 
-This is a demo app built with Server Components, an experimental React feature. **We strongly recommend [watching our talk introducing Server Components](https://reactjs.org/server-components) before exploring this demo.** The talk includes a walkthrough of the demo code and highlights key points of how Server Components work and what features they provide.
 
-**Update (March 2023):** This demo has been updated to match the [latest conventions](https://react.dev/blog/2023/03/22/react-labs-what-we-have-been-working-on-march-2023#react-server-components).
-
-## When will I be able to use this?
-
-Server Components are an experimental feature and **are not ready for adoption**. For now, we recommend experimenting with Server Components via this demo app. **Use this in your projects at your own risk.**
-
-## Should I use this demo for benchmarks?
-
-If you use this demo to compare React Server Components to the framework of your choice, keep this in mind:
-
-* **This demo doesn’t have server rendering.** Server Components are a separate (but complementary) technology from Server Rendering (SSR). Server Components let you run some of your components purely on the server. SSR, on the other hand, lets you generate HTML before any JavaScript loads. This demo *only* shows Server Components, and not SSR. Because it doesn't have SSR, the initial page load in this demo has a client-server network waterfall, and **will be much slower than any SSR framework**. However, Server Components are meant to be integrated together with SSR, and they *will* be in a future release.
-* **This demo doesn’t have an efficient bundling strategy.** When you use Server Components, a bundler plugin will automatically split the client JS bundle. However, the way it's currently being split is not necessarily optimal. We are investigating more efficient ways to split the bundles, but they are out of scope of this demo.
-* **This demo doesn’t have partial refetching.** Currently, when you click on different “notes”, the entire app shell is refetched from the server. However, that’s not ideal: for example, it’s unnecessary to refetch the sidebar content if all that changed is the inner content of the right pane. Partial refetching is an [open area of research](https://github.com/reactjs/rfcs/blob/main/text/0188-server-components.md#open-areas-of-research) and we don’t yet know how exactly it will work.
-
-This demo is provided “as is” to show the parts that are ready for experimentation. It is not intended to reflect the performance characteristics of a real app driven by a future stable release of Server Components.
-
-## Setup
-
-You will need to have [Node 18 LTS](https://nodejs.org/en) in order to run this demo. (If you use `nvm`, run `nvm i` before running `npm install` to install the recommended Node version.)
-
-  ```
-  npm install --legacy-peer-deps
-  npm start
-  ```
-
-(Or `npm run start:prod` for a production build.)
-
-Then open http://localhost:4000.
-
-The app won't work until you set up the database, as described below.
-
-<details>
-  <summary>Setup with Docker (optional)</summary>
-  <p>You can also start dev build of the app by using docker-compose.</p>
-  <p>⚠️ This is <b>completely optional,</b> and is only for people who <i>prefer</i> Docker to global installs!</p>
-  <p>If you prefer Docker, make sure you have docker and docker-compose installed then run:</p>
-  <pre><code>docker-compose up</code></pre>
-  <h4>Running seed script</h4>
-  <p>1. Run containers in the detached mode</p>
-  <pre><code>docker-compose up -d</code></pre>
-  <p>2. Run seed script</p>
-  <pre><code>docker-compose exec notes-app npm run seed</code></pre>
-  <p>If you'd rather not use Docker, skip this section and continue below.</p>
-</details>
-
-## DB Setup
-
-This demo uses Postgres. First, follow its [installation link](https://wiki.postgresql.org/wiki/Detailed_installation_guides) for your platform.
-
-Alternatively, you can check out this [fork](https://github.com/pomber/server-components-demo/) which will let you run the demo app without needing a database. However, you won't be able to execute SQL queries (but fetch should still work). There is also [another fork](https://github.com/prisma/server-components-demo) that uses Prisma with SQLite, so it doesn't require additional setup.
-
-The below example will set up the database for this app, assuming that you have a UNIX-like platform:
-
-### Step 1. Create the Database
+### Step 1. Create the Database创建数据库
+为什么默认创建postgres的数据库，因为默认postgres是默认的，必须创建。
+创建好了之后，可以切换到另一个数据库。
 
 ```
 psql postgres
@@ -81,7 +19,25 @@ CREATE ROLE notesadmin WITH LOGIN PASSWORD 'password';
 ALTER ROLE notesadmin WITH SUPERUSER;
 ALTER DATABASE notesapi OWNER TO notesadmin;
 \q
+
+
+***上面的嗲吗解释如下：
+psql postgres：这个命令用于连接到名为 postgres 的数据库。这个命令会打开一个交互式的 PostgreSQL 命令行界面，允许您执行 SQL 查询和管理数据库。
+
+CREATE DATABASE notesapi;：这个命令用于在当前连接的 PostgreSQL 实例中创建一个名为 notesapi 的数据库。一旦执行成功，将创建一个新的空数据库。
+
+CREATE ROLE notesadmin WITH LOGIN PASSWORD 'password';：这个命令用于创建一个名为 notesadmin 的数据库角色（用户），并设置其登录密码为 'password'。WITH LOGIN 表示允许用户登录到数据库。
+
+ALTER ROLE notesadmin WITH SUPERUSER;：这个命令用于将 notesadmin 用户角色提升为超级用户权限。超级用户拥有对数据库的完全控制权限，包括对其他用户和角色的管理权限。
+
+ALTER DATABASE notesapi OWNER TO notesadmin;：这个命令用于将数据库 notesapi 的所有者设置为 notesadmin 角色。这意味着 notesadmin 角色将拥有对 notesapi 数据库的管理权限，可以创建、删除表以及执行其他管理操作。
+
+\q：这个命令用于退出 psql 命令行界面，返回到操作系统的命令行界面。
+
+总的来说，以上命令的目的是在 PostgreSQL 中创建一个名为 notesapi 的数据库，并创建一个具有超级用户权限的名为 notesadmin 的数据库角色，并将 notesapi 数据库的所有权授予给 notesadmin 角色。
+
 ```
+
 
 ### Step 2. Connect to the Database
 
@@ -100,13 +56,33 @@ CREATE TABLE notes (
 );
 
 \q
+
+
+
+
+***代码含义解释
+psql -d postgres -U notesadmin;：这是连接到 PostgreSQL 数据库的命令。-d 参数用于指定要连接的数据库名称，这里是 postgres。-U 参数用于指定连接的用户名，这里是 notesadmin。执行此命令后，将会以 notesadmin 用户身份连接到 postgres 数据库。
+
+\c notesapi：这是在 psql 命令行中切换到另一个数据库的命令。\c 是 psql 的内部命令，用于连接到另一个数据库。在这里，它将连接到名为 notesapi 的数据库。
+
+DROP TABLE IF EXISTS notes;：这是删除表的命令。IF EXISTS 子句表示如果表存在，则执行删除操作。在这里，它将尝试删除名为 notes 的表，如果该表存在的话。
+
+CREATE TABLE notes (...);：这是创建表的命令。在这个例子中，它创建了一个名为 notes 的表，包含 id、created_at、updated_at、title 和 body 列。id 列是一个自增的主键列，created_at 和 updated_at 列是 TIMESTAMP 类型，title 和 body 列是 TEXT 类型。
+
+\q：这是退出 psql 命令行界面的命令。执行此命令后，将会退出 psql，返回到操作系统的命令行界面。
+
+综上所述，给出的代码片段连接到数据库，切换到另一个数据库，删除了可能存在的 notes 表，然后创建了一个新的 notes 表，并退出了 psql。
+
+
 ```
 
-### Step 3. Run the seed script
+### Step 3. Run the seed script：自动生成一些数据
 
 Finally, run `npm run seed` to populate some data.
 
 And you're done!
+
+
 
 ## Notes about this app
 
@@ -120,32 +96,6 @@ The demo is a note-taking app called **React Notes**. It consists of a few major
 
 This demo is built on top of our Webpack plugin, but this is not how we envision using Server Components when they are stable. They are intended to be used in a framework that supports server rendering — for example, in Next.js. This is an early demo -- the real integration will be developed in the coming months. Learn more in the [announcement post](https://reactjs.org/server-components).
 
-### Interesting things to try
 
-- Expand note(s) by hovering over the note in the sidebar, and clicking the expand/collapse toggle. Next, create or delete a note. What happens to the expanded notes?
-- Change a note's title while editing, and notice how editing an existing item animates in the sidebar. What happens if you edit a note in the middle of the list?
-- Search for any title. With the search text still in the search input, create a new note with a title matching the search text. What happens?
-- Search while on Slow 3G, observe the inline loading indicator.
-- Switch between two notes back and forth. Observe we don't send new responses next time we switch them again.
-- Uncomment the `await fetch('http://localhost:4000/sleep/....')` call in `Note.js` or `NoteList.js` to introduce an artificial delay and trigger Suspense.
-  - If you only uncomment it in `Note.js`, you'll see the fallback every time you open a note.
-  - If you only uncomment it in `NoteList.js`, you'll see the list fallback on first page load.
-  - If you uncomment it in both, it won't be very interesting because we have nothing new to show until they both respond.
-- Add a new Server Component and place it above the search bar in `App.js`. Import `db` from `db.js` and use `await db.query()` from it to get the number of notes. Oberserve what happens when you add or delete a note.
 
-You can watch a [recorded walkthrough of all these demo points here](https://youtu.be/La4agIEgoNg?t=600) with timestamps. (**Note:** this recording is slightly outdated because the repository has been updated to match the [latest conventions](https://react.dev/blog/2023/03/22/react-labs-what-we-have-been-working-on-march-2023#react-server-components).)
 
-## Built by (A-Z)
-
-- [Andrew Clark](https://twitter.com/acdlite)
-- [Dan Abramov](https://twitter.com/dan_abramov)
-- [Joe Savona](https://twitter.com/en_JS)
-- [Lauren Tan](https://twitter.com/sugarpirate_)
-- [Sebastian Markbåge](https://twitter.com/sebmarkbage)
-- [Tate Strickland](http://www.tatestrickland.com/) (Design)
-
-## [Code of Conduct](https://engineering.fb.com/codeofconduct/)
-Facebook has adopted a Code of Conduct that we expect project participants to adhere to. Please read the [full text](https://engineering.fb.com/codeofconduct/) so that you can understand what actions will and will not be tolerated.
-
-## License
-This demo is MIT licensed.
